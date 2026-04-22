@@ -42,8 +42,8 @@ def open_login(role):
             conn.close()
 
             if result:
-                messagebox.showinfo("Success", "Teacher Login Successful")
-                # later: open teacher dashboard
+                from teacher.teacher_dashboard import open_teacher_dashboard
+                open_teacher_dashboard(user)
             else:
                 messagebox.showerror("Error", "Invalid Credentials")
 
