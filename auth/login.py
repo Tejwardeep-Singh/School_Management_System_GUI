@@ -43,7 +43,8 @@ def open_login(role):
 
             if result:
                 from teacher.teacher_dashboard import open_teacher_dashboard
-                open_teacher_dashboard(user)
+                window.destroy() 
+                open_teacher_dashboard(int(user))
             else:
                 messagebox.showerror("Error", "Invalid Credentials")
 

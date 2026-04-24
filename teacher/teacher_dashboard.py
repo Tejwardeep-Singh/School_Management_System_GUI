@@ -2,25 +2,77 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from db import connect_db
 
+# 🎨 THEME
+BG = "#0f172a"
+SIDEBAR = "#020617"
+CARD = "#1e293b"
+BTN = "#3b82f6"
+TEXT = "#f8fafc"
+
 # ================= DASHBOARD =================
 def open_teacher_dashboard(user_id):
     window = tk.Toplevel()
     window.title("Teacher Dashboard")
-    window.geometry("500x400")
+    window.geometry("900x500")
+    window.configure(bg=BG)
 
-    tk.Label(window, text="Teacher Panel", font=("Arial", 16)).pack(pady=20)
+    # ===== SIDEBAR =====
+    sidebar = tk.Frame(window, bg=SIDEBAR, width=200)
+    sidebar.pack(side="left", fill="y")
 
-    tk.Button(window, text="View Profile", width=25,
-              command=lambda: view_profile(user_id)).pack(pady=10)
+    tk.Label(sidebar, text="Teacher Panel",
+             bg=SIDEBAR, fg=TEXT,
+             font=("Segoe UI", 16, "bold")).pack(pady=20)
 
-    tk.Button(window, text="Apply Leave", width=25,
-              command=lambda: apply_leave(user_id)).pack(pady=10)
+    def sidebar_btn(text, cmd):
+        btn = tk.Button(
+            sidebar,
+            text=text,
+            command=cmd,
+            bg=SIDEBAR,
+            fg=TEXT,
+            font=("Segoe UI", 10),
+            bd=0,
+            cursor="hand2",
+            pady=10
+        )
 
-    tk.Button(window, text="View Salary", width=25,
-              command=lambda: view_salary(user_id)).pack(pady=10)
+        # 🔥 Hover effect
+        btn.bind("<Enter>", lambda e: btn.config(bg=BTN))
+        btn.bind("<Leave>", lambda e: btn.config(bg=SIDEBAR))
 
-    tk.Button(window, text="View Students", width=25,
-              command=view_students).pack(pady=10)
+        return btn
+
+    sidebar_btn("Profile", lambda: view_profile(user_id)).pack(fill="x")
+    sidebar_btn("Apply Leave", lambda: apply_leave(user_id)).pack(fill="x")
+    sidebar_btn("Salary", lambda: view_salary(user_id)).pack(fill="x")
+    sidebar_btn("Students", view_students).pack(fill="x")
+
+    # ===== MAIN AREA =====
+    main = tk.Frame(window, bg=BG)
+    main.pack(side="right", fill="both", expand=True)
+
+    tk.Label(main, text="Welcome Back 👋",
+             bg=BG, fg=TEXT,
+             font=("Segoe UI", 20, "bold")).pack(pady=20)
+
+    # ===== CARDS =====
+    card_frame = tk.Frame(main, bg=BG)
+    card_frame.pack()
+
+    def card(title):
+        frame = tk.Frame(card_frame, bg=CARD, width=180, height=100)
+        frame.pack(side="left", padx=15, pady=10)
+        frame.pack_propagate(False)
+
+        tk.Label(frame, text=title,
+                 bg=CARD, fg=TEXT,
+                 font=("Segoe UI", 12, "bold")).pack(expand=True)
+
+    card("Profile")
+    card("Leave")
+    card("Salary")
+    card("Students")
 
 
 # ================= VIEW PROFILE =================
@@ -30,7 +82,6 @@ def view_profile(user_id):
 
     cursor.execute("SELECT * FROM teacher WHERE user_id=%s", (user_id,))
     data = cursor.fetchone()
-
     conn.close()
 
     if data:
@@ -48,18 +99,24 @@ Salary: {data[6]}
 def apply_leave(user_id):
     window = tk.Toplevel()
     window.title("Apply Leave")
+    window.geometry("350x300")
+    window.configure(bg=BG)
 
-    tk.Label(window, text="From Date (YYYY-MM-DD)").pack()
-    from_date = tk.Entry(window)
-    from_date.pack()
+    frame = tk.Frame(window, bg=CARD, padx=20, pady=20)
+    frame.pack(pady=30)
 
-    tk.Label(window, text="To Date (YYYY-MM-DD)").pack()
-    to_date = tk.Entry(window)
-    to_date.pack()
+    tk.Label(frame, text="Apply Leave",
+             bg=CARD, fg=TEXT,
+             font=("Segoe UI", 14, "bold")).pack(pady=10)
 
-    tk.Label(window, text="Reason").pack()
-    reason = tk.Entry(window)
-    reason.pack()
+    from_date = tk.Entry(frame)
+    from_date.pack(pady=5)
+
+    to_date = tk.Entry(frame)
+    to_date.pack(pady=5)
+
+    reason = tk.Entry(frame)
+    reason.pack(pady=5)
 
     def submit():
         conn = connect_db()
@@ -80,7 +137,10 @@ def apply_leave(user_id):
 
         conn.close()
 
-    tk.Button(window, text="Submit", command=submit).pack(pady=10)
+    tk.Button(frame, text="Submit",
+              bg=BTN, fg="white",
+              width=15,
+              command=submit).pack(pady=10)
 
 
 # ================= VIEW SALARY =================
@@ -112,6 +172,21 @@ Gross: {data[5]}
 def view_students():
     window = tk.Toplevel()
     window.title("Students")
+    window.geometry("600x400")
+    window.configure(bg=BG)
+
+    style = ttk.Style()
+    style.theme_use("default")
+
+    style.configure("Treeview",
+                    background=CARD,
+                    foreground="white",
+                    fieldbackground=CARD,
+                    rowheight=25)
+
+    style.configure("Treeview.Heading",
+                    background=BTN,
+                    foreground="white")
 
     tree = ttk.Treeview(window, columns=("ID", "Name"), show="headings")
     tree.heading("ID", text="ID")
