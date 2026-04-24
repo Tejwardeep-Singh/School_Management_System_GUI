@@ -53,8 +53,8 @@ def open_login(role):
             cursor = conn.cursor()
 
             # TEMP: using class_1 table
-            query = "SELECT * FROM class_1 WHERE admission_number=%s AND password=%s"
-            cursor.execute(query, (user, password))
+            query = "SELECT * FROM class_1 WHERE ref_id=%s AND password=%s"
+            cursor.execute(query, (int(user), int(password)))
 
             result = cursor.fetchone()
             conn.close()
